@@ -1,16 +1,10 @@
-import fitz, os, sys, re
+import fitz, os, sys, re, warnings
 from langdetect import detect
-from pdfMiner.structures import structureEnglish, structureSpanish  # import filtering structures
-from pdfMiner.codeUpgrader import upgradeCode
+from pdfMiner.toolBox.structures import structureEnglish, structureSpanish  # import filtering structures
+from pdfMiner.toolBox.codeUpgrader import upgradeCode
 import numpy as np
 import pandas as pd
 
-#Here we upgrade code and restart execution
-aux=upgradeCode()
-if aux:
-    print('restarting code...')
-    os.execl(sys.executable, 'python', sys.executable.replace("python.exe", "pdfMiner\explorePDF.py"),
-             *sys.argv[1:])
 
 # This is main class to search into PDF
 class explorePDF():
@@ -30,6 +24,12 @@ class explorePDF():
             Output:
                 None: save report in self.workPath\reports as excel file
         '''''
+
+        # Here we upgrade code and restart execution
+        auxn = upgradeCode()
+        if auxn:
+            print('restarting code...')
+            return True
         aux = pd.DataFrame(columns=['PDFNAME', 'PAGE', 'PARAGRAPH', 'WORDS', 'TEXT'])
         try:
             os.makedirs(os.path.join(self.workPath, r'reports'))
@@ -43,7 +43,7 @@ class explorePDF():
                     pass
             else:
                 print('process rejected')
-                return
+                return False
         n=-1
         for fileName in os.listdir(self.workPath):
             if fileName != r'reports':
@@ -73,6 +73,7 @@ class explorePDF():
         print('********************************************')
         print('database analized')
         print('********************************************')
+        return False
 
 
     def readPDF(self, workPath, pdfName):
